@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 :root {
   /* Accent — one electric hue. Used for primary actions / focus / live only. */
-  --seed-accent: #C2410C;               /* Parka: rust orange. Baseline's default is #2563EB */
+  --seed-accent: #0E7490;               /* Parka, winter edition: glacier blue. Was rust #C2410C */
 
   /* Neutral temperature — tints the black→white ramp. */
   --seed-neutral-chroma: 0.008;         /* Parka: warm. pure 0 · cool 0.006 · warm 0.008 */
