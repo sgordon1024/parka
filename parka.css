@@ -1,5 +1,9 @@
 /* Parka app chrome, shared by every phone screen. Baseline semantic tokens only. */
 
+/* Text on the accent wash. The pressed accent clears AA in light; dark needs the light ink. */
+:root { --wear-ink: var(--accent-pressed); }
+[data-theme="dark"] { --wear-ink: var(--text-primary); }
+
 body.screen {
   margin: 0 auto;
   max-width: 430px;

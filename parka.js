@@ -146,6 +146,9 @@
   }
   const Glyph = ({ name, label }) => h("span", { className: "glyph" }, h(Icon, { name, label }));
 
+  // The what-to-wear tag on Week: the outfit leads each row, in the accent color.
+  const WEAR = { background: "var(--accent-wash)", border: "1px solid transparent", color: "var(--wear-ink)", fontWeight: 600 };
+
   function StatusBar() {
     return h("div", { className: "status" },
       h("span", null, "9:41"),
@@ -245,13 +248,13 @@
             h("span", { className: "name" }, dayLabel(date, i)),
             h(Glyph, { name: s.icon, label: s.label }),
             h("div", { className: "mid" },
+              h("div", { className: "meta" },
+                h(Tag, { style: WEAR }, outfit(d.apparent_temperature_max[i])),
+                rain >= 30 && h(Badge, { tone: "info" }, h(Icon, { name: "Droplets" }), `${rain}%`)),
               h("div", { className: "line" },
                 h("span", { className: "lo" }, deg(d.temperature_2m_min[i])),
                 h("span", { className: "range" }, h("i", { style: { left: `${left}%`, width: `${width}%` } })),
-                h("span", { className: "hi" }, deg(d.temperature_2m_max[i]))),
-              h("div", { className: "meta" },
-                h(Tag, null, outfit(d.apparent_temperature_max[i])),
-                rain >= 30 && h(Badge, { tone: "info" }, h(Icon, { name: "Droplets" }), `${rain}%`))));
+                h("span", { className: "hi" }, deg(d.temperature_2m_max[i])))));
         }))),
         h("p", { className: "note" }, "What to wear is based on each day's feels-like high.")));
   }
