@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TIER 1 · BRAND SEED
+   The ONLY block you edit to re-brand a project. Change these six knobs and
+   the entire system cascades — colors, type, radius, and motion all derive
+   from here. Defaults ship an Uber/Nike-smooth monochrome look.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Accent — one electric hue. Used for primary actions / focus / live only. */
+  --seed-accent: #C2410C;               /* Parka: rust orange. Baseline's default is #2563EB */
+
+  /* Neutral temperature — tints the black→white ramp. */
+  --seed-neutral-chroma: 0.008;         /* Parka: warm. pure 0 · cool 0.006 · warm 0.008 */
+  --seed-neutral-hue: 70;               /* Parka: warm. cool ≈ 255 · warm ≈ 70 */
+
+  /* Corner personality. */
+  --seed-radius: 16px;                  /* Parka: round. sharp 4 · soft 8 · round 16 */
+
+  /* Type. Defaults are the platform's own faces: SF Pro on Apple, Segoe on
+     Windows, Roboto on Android. A brand font is an opt-in: set it here and
+     @import its webfont in your project (not in the system). */
+  --seed-font-display: system-ui;       /* e.g. 'Space Grotesk' + your @import */
+  --seed-font-body: system-ui;          /* e.g. 'Inter' + your @import */
+  --seed-font-mono: ui-monospace;       /* neutral workhorse for code. A flavored mono
+                                           (Space Mono, JetBrains Mono) is a brand choice:
+                                           opt in here and @import its webfont yourself. */
+
+  /* Motion personality. */
+  --seed-motion-ease: cubic-bezier(0.16, 1, 0.3, 1); /* smooth · snappy .2,.9,.25,1 · playful .34,1.56,.64,1 */
+  --seed-motion-fast: 200ms;            /* state changes — snappy 120ms · playful 240ms */
+  --seed-motion-base: 300ms;            /* reveals — snappy 220ms · playful 420ms */
+  --seed-motion-slow: 600ms;            /* hero / page — snappy 420ms · playful 720ms */
+}

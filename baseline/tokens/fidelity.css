@@ -1,0 +1,60 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TIER 1.5 · FIDELITY AXIS — data-fidelity="wire"
+   Lo-fi is an axis, not a fork: the same DOM, the same components, the same
+   layout, with the brand knobs turned to neutral. Set data-fidelity="wire"
+   on <html> and the system renders as a wireframe; remove the attribute and
+   the brand comes back. Nothing is rebuilt, so early work stays unbiased
+   and upgrades in place.
+
+   DOCUMENT-LEVEL BY DESIGN (like data-theme): the seed cascade re-computes
+   only on the element where the derived tiers are declared, which is :root.
+   A container-scoped override would re-brand direct tokens but not derived
+   ones (washes, action colors) — a half-applied trap. For side-by-side
+   specimens, use an iframe per fidelity (see guidelines/fidelity.card.html).
+
+   html[...] rather than :root or a bare attribute selector is load-bearing:
+   it out-specifies a project's own `:root { --seed-accent: ... }` override.
+   ═══════════════════════════════════════════════════════════════════════ */
+html[data-fidelity="wire"] {
+  /* Brand knobs → neutral. The accent cascade de-brands actions, focus,
+     washes, and the dark-theme ring in one move. */
+  --seed-accent: oklch(0.45 0 0);
+  --seed-radius: 6px;
+  --seed-font-display: system-ui;
+  --seed-font-body: system-ui;
+  --seed-font-mono: ui-monospace;
+  --seed-neutral-chroma: 0;
+  --seed-neutral-hue: 0;
+
+  /* Status goes quiet: distinct grays, meaning carried by glyph + word —
+     which the system mandates everywhere anyway (never color alone). */
+  --success: oklch(0.42 0 0);
+  --warning: oklch(0.50 0 0);
+  --danger:  oklch(0.32 0 0);
+  --info:    oklch(0.56 0 0);
+
+  /* Elevation flattens; borders carry structure in a wireframe. */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-bloom: none;
+}
+
+/* Dark theme runs the status grays lighter, mirroring the hue system. */
+html[data-theme="dark"][data-fidelity="wire"] {
+  --success: oklch(0.74 0 0);
+  --warning: oklch(0.66 0 0);
+  --danger:  oklch(0.80 0 0);
+  --info:    oklch(0.60 0 0);
+}
+
+/* Imagery reads as placeholder, not product — both <img> elements and
+   components that paint photos via an inline background url() (MediaCard,
+   heroes). A container filter also mutes overlay content, which is the
+   wireframe posture anyway. */
+html[data-fidelity="wire"] img,
+html[data-fidelity="wire"] [style*="url("] {
+  filter: grayscale(1) contrast(0.9);
+}
