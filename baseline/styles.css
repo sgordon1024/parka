@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   BASELINE DESIGN SYSTEM — global entry point
+   Consumers link THIS one file. It is an @import manifest only.
+   Re-brand a project by editing tokens/seed.css — everything cascades.
+   ═══════════════════════════════════════════════════════════════════════ */
+@import url("tokens/seed.css");        /* TIER 1 — the only block you edit */
+@import url("tokens/colors.css");      /* TIER 2 ramps + TIER 3 semantic (light/dark) */
+@import url("tokens/fidelity.css");    /* TIER 1.5 fidelity axis — data-fidelity="wire" */
+@import url("tokens/typography.css");  /* fonts + fluid type scale */
+@import url("tokens/spacing.css");     /* space + radius scale */
+@import url("tokens/motion.css");      /* easing + durations + keyframes */
+@import url("tokens/reset.css");       /* base reset + focus rings */
