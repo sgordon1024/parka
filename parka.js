@@ -309,7 +309,7 @@
     return h(React.Fragment, null,
       h(Head, { title: "Today", place, updated: timeLabel(now.time), stale }),
       h("main", null,
-        h(Card, null,
+        h(Card, { className: "wear-card", style: { background: "var(--accent-wash)", borderColor: "var(--accent-subtle)" } },
           h("p", { className: "eyebrow" }, "What to wear"),
           h("p", { className: "answer" }, story.wear),
           h("p", { className: "why" }, story.why),
@@ -330,7 +330,7 @@
               h("span", { className: "drop" }, h(Icon, { name: "Droplets" }), `${x.rain}%`)))))));
   }
 
-  // One line of advice for the week: how long the first outfit lasts, then the day that needs the most.
+  // One line of advice for the week: how long the first outfit lasts, then the first day that needs the most.
   function weekStory(days) {
     const first = days[0].wear;
     let run = 1;
@@ -339,9 +339,11 @@
       : run > 1 ? `${first.many} through ${days[run - 1].full}.` : `${first.label} today.`];
     const later = days.slice(run);
     if (later.length) {
-      const coldest = later.reduce((a, b) => (b.feels < a.feels ? b : a));
-      if (WEAR.indexOf(coldest.wear) > WEAR.indexOf(first)) {
-        lines.push(`Grab a ${coldest.wear.label.toLowerCase()}${coldest.rain >= 40 ? " and an umbrella" : ""} ${coldest.full}.`);
+      // The warmest outfit the rest of the week needs, on the first day it's needed.
+      const most = Math.max(...later.map((d) => WEAR.indexOf(d.wear)));
+      const day = later.find((d) => WEAR.indexOf(d.wear) === most);
+      if (most > WEAR.indexOf(first)) {
+        lines.push(`Grab a ${day.wear.label.toLowerCase()}${day.rain >= 40 ? " and an umbrella" : ""} ${day.full}.`);
       } else lines.push(`${later[0].wear.many} from ${later[0].full}.`);
     }
     return lines;
@@ -439,16 +441,20 @@
           const now = r.current;
           const s = sky(now.weather_code, now.is_day);
           const rainLater = Math.max(...r.hourly.precipitation_probability) >= 40;
+          const here = p.id === place.id;
           return h(Card, {
             key: p.id, as: "button", interactive: true, className: "pl",
-            onClick: () => onPick(p.id), "aria-pressed": p.id === place.id,
+            onClick: () => onPick(p.id), "aria-pressed": here,
+            style: here ? { background: "var(--accent-wash)", borderColor: "var(--accent-default)",
+              boxShadow: "inset 0 0 0 1px var(--accent-default)" } : undefined,
           },
             h("div", null,
               h("p", { className: "city" }, p.name),
               h("p", { className: "sub" }, `${p.region} · ${localTime(r.utc_offset_seconds)} · ${s.label}`),
               h("div", { className: "meta" },
                 h(Tag, null, outfit(now.apparent_temperature)),
-                p.id === place.id && h(Badge, { tone: "accent" }, "Current"),
+                here && h(Badge, { tone: "accent", style: { background: "var(--accent-default)", color: "var(--accent-on)",
+                  border: "1px solid transparent" } }, "Current"),
                 rainLater && h(Badge, { tone: "info" }, h(Icon, { name: "Umbrella" }), "Rain later"))),
             h("div", { className: "right" },
               h(Glyph, { name: s.icon, label: s.label }),
