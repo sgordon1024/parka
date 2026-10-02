@@ -31,14 +31,44 @@
     return { label: "Mixed", icon: "Cloud" };
   }
 
-  // The one question Parka answers, from the feels-like temperature.
-  function outfit(feels) {
-    if (feels >= 78) return "T-shirt weather";
-    if (feels >= 65) return "Light layer";
-    if (feels >= 50) return "Jacket";
-    if (feels >= 35) return "Warm coat";
-    return "Full parka";
-  }
+  // The one question Parka answers, from the feels-like temperature. Each answer has a garment
+  // drawing and a warmth tier, which sets its color on Week: the warmer the day, the more accent.
+  const WEAR = [
+    { min: 78, label: "T-shirt weather", garment: "tee", tier: "hot" },
+    { min: 65, label: "Light layer", garment: "hoodie", tier: "warm" },
+    { min: 50, label: "Jacket", garment: "jacket", tier: "mild" },
+    { min: 35, label: "Warm coat", garment: "coat", tier: "cool" },
+    { min: -Infinity, label: "Full parka", garment: "parka", tier: "cold" },
+  ];
+  const wear = (feels) => WEAR.find((w) => feels >= w.min);
+  const outfit = (feels) => wear(feels).label;
+
+  // Garment drawings on a 64 x 64 grid. The body is filled; seams are drawn in the tile color.
+  const GARMENTS = {
+    tee: {
+      body: "M23 8 C26 12.5 38 12.5 41 8 L51 11.5 L60 21 L53.5 28 L48.5 24.5 L48.5 56 L15.5 56 L15.5 24.5 L10.5 28 L4 21 L13 11.5 Z",
+      seams: ["M24.5 10.2 C27.5 15 36.5 15 39.5 10.2"],
+    },
+    hoodie: {
+      body: "M18.5 15 C17 2 47 2 45.5 15 L52 16 Q56 17 57 21.5 L60.5 50 L53 51.5 L48.5 26.5 L48.5 57 L15.5 57 L15.5 26.5 L11 51.5 L3.5 50 L7 21.5 Q8 17 12 16 Z",
+      opening: "M22.5 12.5 C22.5 26 41.5 26 41.5 12.5 C37 9.5 27 9.5 22.5 12.5 Z",
+      seams: ["M26.5 21 L26 31", "M37.5 21 L38 31", "M22 41 L42 41 L44.5 52 L19.5 52 Z", "M15.5 53.8 L48.5 53.8"],
+    },
+    jacket: {
+      body: "M24 5 L40 5 L41.5 10 L51 12 Q56 13.5 57 18 L60.5 50 L53 51.5 L48.5 25 L48.5 57 L15.5 57 L15.5 25 L11 51.5 L3.5 50 L7 18 Q8 13.5 13 12 L22.5 10 Z",
+      seams: ["M22.5 10 L32 15 L41.5 10", "M32 15 L32 57", "M21 37 L24 46", "M43 37 L40 46", "M15.5 52.5 L48.5 52.5"],
+    },
+    coat: {
+      body: "M23 4 L41 4 L42 9.5 L51 12 Q57.5 14 58.5 21 L61 52 Q61 54 59 54.5 L54 55.5 Q52 56 51.5 54 L49 30 L49.5 59 Q49.5 61 47.5 61 L16.5 61 Q14.5 61 14.5 59 L15 30 L12.5 54 Q12 56 10 55.5 L5 54.5 Q3 54 3 52 L5.5 21 Q6.5 14 13 12 L22 9.5 Z",
+      seams: ["M32 4 L32 61", "M15 21.5 L49 21.5", "M15 32 L49 32", "M15 42.5 L49.3 42.5", "M14.8 52.5 L49.4 52.5",
+        "M4.7 33 L13.6 34", "M3.9 44 L12.7 45", "M50.4 34 L59.3 33", "M51.3 45 L60.1 44"],
+    },
+    parka: {
+      body: "M19 18 C16 1 48 1 45 18 L53 20 Q57.5 22 58 27 L61 56 L53.5 57.5 L49.5 32 L50.5 62 L13.5 62 L14.5 32 L10.5 57.5 L3 56 L6 27 Q6.5 22 11 20 Z",
+      seams: ["M32 21.5 L32 62", "M19.5 44 L27 44", "M37 44 L44.5 44", "M14.4 36 L49.6 36"],
+      hood: true,
+    },
+  };
 
   const deg = (n) => `${Math.round(n)}°`;
   const clock = (hr, min) => `${hr % 12 || 12}${min == null ? "" : ":" + min} ${hr >= 12 ? "PM" : "AM"}`;
@@ -146,8 +176,15 @@
   }
   const Glyph = ({ name, label }) => h("span", { className: "glyph" }, h(Icon, { name, label }));
 
-  // The what-to-wear tag on Week: the outfit leads each row, in the accent color.
-  const WEAR = { background: "var(--accent-wash)", border: "1px solid transparent", color: "var(--wear-ink)", fontWeight: 600 };
+  function Garment({ kind }) {
+    const g = GARMENTS[kind];
+    return h("svg", { className: "garment", viewBox: "0 0 64 64", "aria-hidden": true },
+      h("path", { className: "body", d: g.body }),
+      g.opening && h("path", { className: "face", d: g.opening }),
+      g.hood && h("ellipse", { className: "fur", cx: 32, cy: 13, rx: 10.4, ry: 9.8 }),
+      g.hood && h("ellipse", { className: "face", cx: 32, cy: 13, rx: 7.2, ry: 6.8 }),
+      g.seams.map((d) => h("path", { key: d, className: "seam", d })));
+  }
 
   function StatusBar() {
     return h("div", { className: "status" },
@@ -231,31 +268,43 @@
               h("span", { className: "drop" }, h(Icon, { name: "Droplets" }), `${x.rain}%`)))))));
   }
 
+  // Week: what to wear leads. Today gets the big card, and every day is colored by how warm it is.
   function Week({ fc, stale, place }) {
-    const { Card, Badge, Tag } = window.Baseline;
     const d = fc.daily;
-    const lo = Math.min(...d.temperature_2m_min);
-    const span = Math.max(1, Math.max(...d.temperature_2m_max) - lo);
+    const days = d.time.map((date, i) => ({
+      date,
+      name: dayLabel(date, i),
+      sky: sky(d.weather_code[i]),
+      wear: wear(d.apparent_temperature_max[i]),
+      hi: d.temperature_2m_max[i],
+      lo: d.temperature_2m_min[i],
+      rain: d.precipitation_probability_max[i],
+    }));
+    const [today, ...rest] = days;
+    const rain = (day) => day.rain >= 30 &&
+      h("span", { className: "wk-rain" }, h(Icon, { name: "Umbrella", label: "Chance of rain" }), `${day.rain}%`);
     return h(React.Fragment, null,
       h(Head, { title: "This week", place, updated: timeLabel(fc.current.time), stale }),
-      h("main", null,
-        h(Card, null, h("div", { className: "days" }, d.time.map((date, i) => {
-          const s = sky(d.weather_code[i]);
-          const rain = d.precipitation_probability_max[i];
-          const left = ((d.temperature_2m_min[i] - lo) / span) * 100;
-          const width = Math.max(4, ((d.temperature_2m_max[i] - d.temperature_2m_min[i]) / span) * 100);
-          return h("div", { className: "day", key: date },
-            h("span", { className: "name" }, dayLabel(date, i)),
-            h(Glyph, { name: s.icon, label: s.label }),
-            h("div", { className: "mid" },
-              h("div", { className: "meta" },
-                h(Tag, { style: WEAR }, outfit(d.apparent_temperature_max[i])),
-                rain >= 30 && h(Badge, { tone: "info" }, h(Icon, { name: "Droplets" }), `${rain}%`)),
-              h("div", { className: "line" },
-                h("span", { className: "lo" }, deg(d.temperature_2m_min[i])),
-                h("span", { className: "range" }, h("i", { style: { left: `${left}%`, width: `${width}%` } })),
-                h("span", { className: "hi" }, deg(d.temperature_2m_max[i])))));
-        }))),
+      h("main", { className: "wk" },
+        h("article", { className: `wk-card wk-today tier-${today.wear.tier}` },
+          h("div", { className: "wk-top" },
+            h("span", { className: "wk-day" }, today.name),
+            h("span", { className: "wk-sky" }, h(Icon, { name: today.sky.icon }), today.sky.label)),
+          h("p", { className: "wk-wear" }, today.wear.label),
+          h("p", { className: "wk-temps" },
+            h("b", null, deg(today.hi)), ` / ${deg(today.lo)}`),
+          rain(today),
+          h(Garment, { kind: today.wear.garment })),
+        h("div", { className: "wk-grid" }, rest.map((day) =>
+          h("article", { key: day.date, className: `wk-card wk-tile tier-${day.wear.tier}` },
+            h("div", { className: "wk-top" },
+              h("span", { className: "wk-day" }, day.name),
+              rain(day),
+              h(Icon, { name: day.sky.icon, label: day.sky.label })),
+            h(Garment, { kind: day.wear.garment }),
+            h("div", { className: "wk-foot" },
+              h("p", { className: "wk-wear" }, day.wear.label),
+              h("p", { className: "wk-temps" }, h("b", null, deg(day.hi)), ` / ${deg(day.lo)}`))))),
         h("p", { className: "note" }, "What to wear is based on each day's feels-like high.")));
   }
 
