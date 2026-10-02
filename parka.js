@@ -330,7 +330,7 @@
               h("span", { className: "drop" }, h(Icon, { name: "Droplets" }), `${x.rain}%`)))))));
   }
 
-  // One line of advice for the week: how long the first outfit lasts, then the day that needs the most.
+  // One line of advice for the week: how long the first outfit lasts, then the first day that needs the most.
   function weekStory(days) {
     const first = days[0].wear;
     let run = 1;
@@ -339,9 +339,11 @@
       : run > 1 ? `${first.many} through ${days[run - 1].full}.` : `${first.label} today.`];
     const later = days.slice(run);
     if (later.length) {
-      const coldest = later.reduce((a, b) => (b.feels < a.feels ? b : a));
-      if (WEAR.indexOf(coldest.wear) > WEAR.indexOf(first)) {
-        lines.push(`Grab a ${coldest.wear.label.toLowerCase()}${coldest.rain >= 40 ? " and an umbrella" : ""} ${coldest.full}.`);
+      // The warmest outfit the rest of the week needs, on the first day it's needed.
+      const most = Math.max(...later.map((d) => WEAR.indexOf(d.wear)));
+      const day = later.find((d) => WEAR.indexOf(d.wear) === most);
+      if (most > WEAR.indexOf(first)) {
+        lines.push(`Grab a ${day.wear.label.toLowerCase()}${day.rain >= 40 ? " and an umbrella" : ""} ${day.full}.`);
       } else lines.push(`${later[0].wear.many} from ${later[0].full}.`);
     }
     return lines;
