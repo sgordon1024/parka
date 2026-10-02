@@ -309,7 +309,7 @@
     return h(React.Fragment, null,
       h(Head, { title: "Today", place, updated: timeLabel(now.time), stale }),
       h("main", null,
-        h(Card, null,
+        h(Card, { className: "wear-card", style: { background: "var(--accent-wash)", borderColor: "var(--accent-subtle)" } },
           h("p", { className: "eyebrow" }, "What to wear"),
           h("p", { className: "answer" }, story.wear),
           h("p", { className: "why" }, story.why),
@@ -441,16 +441,20 @@
           const now = r.current;
           const s = sky(now.weather_code, now.is_day);
           const rainLater = Math.max(...r.hourly.precipitation_probability) >= 40;
+          const here = p.id === place.id;
           return h(Card, {
             key: p.id, as: "button", interactive: true, className: "pl",
-            onClick: () => onPick(p.id), "aria-pressed": p.id === place.id,
+            onClick: () => onPick(p.id), "aria-pressed": here,
+            style: here ? { background: "var(--accent-wash)", borderColor: "var(--accent-default)",
+              boxShadow: "inset 0 0 0 1px var(--accent-default)" } : undefined,
           },
             h("div", null,
               h("p", { className: "city" }, p.name),
               h("p", { className: "sub" }, `${p.region} · ${localTime(r.utc_offset_seconds)} · ${s.label}`),
               h("div", { className: "meta" },
                 h(Tag, null, outfit(now.apparent_temperature)),
-                p.id === place.id && h(Badge, { tone: "accent" }, "Current"),
+                here && h(Badge, { tone: "accent", style: { background: "var(--accent-default)", color: "var(--accent-on)",
+                  border: "1px solid transparent" } }, "Current"),
                 rainLater && h(Badge, { tone: "info" }, h(Icon, { name: "Umbrella" }), "Rain later"))),
             h("div", { className: "right" },
               h(Glyph, { name: s.icon, label: s.label }),
